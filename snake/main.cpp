@@ -9,14 +9,13 @@
 #define LEFT 3
 #define RIGHT 4
 
-// Status Variables
 GLint   lvl = 1;
 GLint   points = 0;
 GLint   size = 0;
 GLbyte  gameOver = true;
 GLbyte  EnableLight = true;
 
-// Snake Variables
+
 GLint   bodyPos[2][100] = { {} };
 GLint   x = 5;
 GLint   z = 10;
@@ -24,19 +23,16 @@ GLint   oldX[2] = {};
 GLint   oldZ[2] = {};
 GLbyte  direction = 0;
 
-// Food Variables
 GLint   bx = 0;
 GLint   bz = 0;
 
-// Screen variables
-GLint   w = 800;
-GLint   h = 550;
+GLint   w = 1280;
+GLint   h = 960;
 GLint   Giw = 0;
 GLint   Gih = 0;
 GLint   Gfw = 150;
 GLint   Gfh = 150;
 
-//Variables for the Camera Angle
 static GLfloat view_rotx = 45.0F;
 static GLfloat view_roty = 0.0F;
 static GLfloat view_rotz = 0.0F;
@@ -44,42 +40,37 @@ static GLfloat view_rotz = 0.0F;
 static GLfloat headRotation = 90.0F;
 static GLfloat zoom = -300.0F;
 
-// Variables to check the FPS
 DWORD   g_dwLastFPS = 0;
 int		g_nFPS = 0, g_nFrames = 0;
 
-//Configure the lightning
 void initLight()
 {
-	//Add ambient light
 	GLfloat ambientColor[] = { 0.3f, 0.4f, 0.8f, 1.0f };
 	glLightModelfv(GL_LIGHT_MODEL_AMBIENT, ambientColor);
 
-	//Add positioned light
 	GLfloat lightColor0[] = { 0.95f, 0.5f, 0.5f, 1.0f };
 	GLfloat lightPos0[] = { 4.0f, 0.0f, 8.0f, 1.0f };
 	glLightfv(GL_LIGHT0, GL_DIFFUSE, lightColor0);
 	glLightfv(GL_LIGHT0, GL_POSITION, lightPos0);
 
-	//Add directed light
 	GLfloat lightColor1[] = { 0.5f, 0.2f, 0.2f, 1.0f };
-	//Coming from the direction (-1, 0.5, 0.5)
 	GLfloat lightPos1[] = { -1.0f, 0.5f, 0.5f, 0.0f };
+
 	glLightfv(GL_LIGHT1, GL_DIFFUSE, lightColor1);
 	glLightfv(GL_LIGHT1, GL_POSITION, lightPos1);
 }
 
-//initialize the first configurations
+
 void myInit(void)
 {
 	glEnable(GL_DEPTH_TEST);
-	glClearColor(0.3, 0.80, 0.9, 0.0f); //Change the background to blue
+	glClearColor(0.3, 0.80, 0.9, 0.0f); 
 	if (EnableLight) {
-		glEnable(GL_COLOR_MATERIAL); //Enable color
-		glEnable(GL_LIGHTING); //Enable lighting
-		glEnable(GL_LIGHT0); //Enable light #0
-		glEnable(GL_LIGHT1); //Enable light #1
-		glEnable(GL_NORMALIZE); //Automatically normalize normals
+		glEnable(GL_COLOR_MATERIAL);
+		glEnable(GL_LIGHTING);
+		glEnable(GL_LIGHT0); 
+		glEnable(GL_LIGHT1);
+		glEnable(GL_NORMALIZE);
 	}
 }
 
@@ -96,14 +87,12 @@ void Write(char *string) {
 	while (*string)
 		glutBitmapCharacter(GLUT_BITMAP_8_BY_13, *string++);
 }
-
 void ManipulateViewAngle() {
 	glRotatef(view_rotx, 1.0, 0.0, 0.0);
 	glRotatef(view_roty, 0.0, 1.0, 0.0);
 	glRotatef(view_rotz, 0.0, 0.0, 1.0);
 }
 
-//This Function will reset the snake size and location...
 void Reset() {
 	x = 5;
 	z = 10;
@@ -124,35 +113,35 @@ void WelcomeScreen() {
 
 	glColor3f(0.0, 0.0, 0);
 	glRasterPos2f(0, 20);
-	Write("Welcome To Snake Game.");
+	Write("Snake Game - Final Project by Tuvshintugs");
 
 	glColor3f(0.18, 0.28, 0.29);
 	glRasterPos2f(0, 10);
-	Write("ICSI432");
+	Write("Computer Graphics - ICSI432");
 
 	glColor3f(0, 0, 1);
 	glRasterPos2f(0, 0);
-	Write("Ehleh - Press N");
+	Write("'N' deer darj ehluulne uu.");
 }
 
 void DrawSnake() {
 	int  i;
 
-	//Drawing the head & the plane
+
 	glPushMatrix();
 	ManipulateViewAngle();
-	//This will draw the plane that the snake will run on.
+
 	glPushMatrix();
 	glColor3f(0.2, 0.2, 0.2);//black place
-	glTranslatef(75.0, 0, 75.0);
-	glScalef(155, 0, 155);
+	glTranslatef(75.0, -16.0, 75.0);
+	glScalef(155, 5.0, 155);
 	glutSolidCube(1);
 	glPopMatrix();
-	//Here we will draw the Head of the snake
-	glColor3f(1.0, 0.86, 0);//Color it Yellow
-	glTranslatef(x, -10.0, z);//Give it the location according to x & z
+
+	glColor3f(1.0, 0.86, 0);
+	glTranslatef(x, -10.0, z);
 	glScalef(0.5, 0.5, 0.5);
-	glutSolidSphere(10, 20, 20);//Draw the head as a sphere a litle bit bigger than the body spheres
+	glutSolidSphere(10, 20, 20);
 	glRotatef(headRotation, 0.0, 1.0, 0.0);
 	glColor3f(1.0, 1.0, 0.0);
 	glTranslatef(0, 0.0, 6.0);
@@ -166,12 +155,12 @@ void DrawSnake() {
 	glutSolidSphere(10, 20, 20);
 	glPopMatrix();
 
-	//Drawing the body
-	for (i = 0; i<size; i++) {//Loop throw the size and draw spheres representing the body
+
+	for (i = 0; i<size; i++) {
 		glPushMatrix();
 		ManipulateViewAngle();
-		glTranslatef(bodyPos[0][i], -10.0, bodyPos[1][i]);//this will locate the spheres
-		glColor3f(0.91, 0.06, 0.17);//Color pink
+		glTranslatef(bodyPos[0][i], -10.0, bodyPos[1][i]);
+		glColor3f(0.91, 0.06, 0.17);
 		glScalef(0.5, 0.5, 0.5);
 		glutSolidSphere(7, 20, 20);
 		glPopMatrix();
@@ -180,11 +169,10 @@ void DrawSnake() {
 
 void DrawFood()
 {
-	//Draw the Sphere representing the Food for the snake
 	glPushMatrix();
 	ManipulateViewAngle();
 	glTranslatef(bx, -10.0, bz);
-	glColor3f(0.5, 0.5, 0.5);
+	glColor3f(0.4, 0.7, 0.4);
 	glScalef(0.5, 0.5, 0.5);
 	glutSolidSphere(7, 20, 20);
 	glPopMatrix();
@@ -194,22 +182,20 @@ void GameStatus() {
 
 	char tmp_str[40];
 
-	// Print the status of the game on the screen
 	glColor3f(0.18, 0.28, 0.29);
 	glRasterPos2f(5, 50);
 
-	sprintf(tmp_str, "Level: %d Points: %d", lvl, points);
+	sprintf(tmp_str, "Level: %d Onoo: %d", lvl, points);
 	Write(tmp_str);
 	glRasterPos2f(5, 40);
+	Write("Up, Down, Left, Right arrow-uudaar udirdana.");
 }
 
-// This function generates random numbers for the location of the food that the snake will eat.
 int RandomNumber(int high, int low)
 {
 	return (rand() % (high-low))+low;
 }
 
-//Generate the New Food that the snake will eat
 void newFood() {
 	time_t seconds;
 	time(&seconds);
@@ -218,28 +204,24 @@ void newFood() {
 	bz = RandomNumber(Gfh-Gih, Gih+10);
 }
 
-//This function will calculate the frame per second to display on the screen
 void getFPS() {
 	char tmp_str[40];
 
-	if (GetTickCount() - g_dwLastFPS >= 1000)				// When A Second Has Passed...
+	if (GetTickCount() - g_dwLastFPS >= 1000)		
 	{
-		g_dwLastFPS = GetTickCount();					// Update Our Time Variable
-		g_nFPS = g_nFrames;						// Save The FPS
-		g_nFrames = 0;							// Reset The FPS Counter
+		g_dwLastFPS = GetTickCount();	
+		g_nFPS = g_nFrames;					
+		g_nFrames = 0;				
 	}
 	g_nFrames++;
 
 	glRasterPos2f(75, 50);
-	//sprintf(tmp_str, "FPS: %d", g_nFPS);
-	//Write(tmp_str);
+
 
 	glRasterPos2f(50, 60);
-	//sprintf(tmp_str, "Pos X: %d Pos Z: %d", x, z);
-	//Write(tmp_str);
+
 }
 
-//This function will check for Collision
 bool collision() {
 	int i;
 
@@ -254,8 +236,6 @@ bool collision() {
 	return false;
 }
 
-//This Function will move the snake according to the directions
-//Taken from the Keyboard keys
 void Run(int value) {
 	int i;
 
@@ -265,30 +245,27 @@ void Run(int value) {
 	case RIGHT:
 		headRotation = 90;
 		x += 6;
-		if (x > Gfw-2) x = Giw-1;//This will check if the snake is going into the border so it will appear on the other side
+		if (x > Gfw-2) x = Giw-1;
 		break;
 	case LEFT:
 		headRotation = -90;
 		x -= 6;
-		if (x < 0) x = Gfw-2;//This will check if the snake is going into the border so it will appear on the other side
+		if (x < 0) x = Gfw-2;
 		break;
 	case UP:
 		headRotation = 0;
 		z += 6;
-		if (z > Gfh-2) z = Gih-1;//This will check if the snake is going into the border so it will appear on the other side
+		if (z > Gfh-2) z = Gih-1;
 		break;
 	case Down:
 		headRotation = 180;
 		z -= 6;
-		if (z < 2) z = Gfh-2;//This will check if the snake is going into the border so it will appear on the other side
+		if (z < 2) z = Gfh-2;
 		break;
 	}
 
-	//Checks for Collisoin if yes Game Over
 	if (collision()) gameOver = true;
 
-	//Checks if the snake ate the food (check the X and Y)
-	// If yes it will increase the points & the size of the snake & create a new food
 	if ((x == bx && z == bz) ||
 		((x >= bx) && (x <= bx + 4) && (z >= bz) && (z <= bz + 4)) ||
 		((x <= bx) && (x >= bx - 4) && (z <= bz) && (z >= bz - 4)) ||
@@ -308,6 +285,7 @@ void Run(int value) {
 		bodyPos[0][i] = oldX[0];
 		bodyPos[1][i] = oldZ[0];
 	}
+
 	glutTimerFunc(130-lvl*4, Run, 0);
 }
 
@@ -327,7 +305,6 @@ void Display() {
 		WelcomeScreen();
 
 	getFPS();
-
 	glutPostRedisplay();
 	glutSwapBuffers();
 }
@@ -386,7 +363,7 @@ void keyboard(unsigned char key, int x, int y)
 	case '-': zoom--;
 		glutPostRedisplay();
 		break;
-	case 'r': Reset();
+	case 'n': Reset();
 		glutPostRedisplay();
 		break;
 
@@ -404,8 +381,8 @@ int main(int argc, char *argv[]) {
 	glutInit(&argc, argv);
 	glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB);
 	glutInitWindowSize(w, h);
-	glutInitWindowPosition(0, 0);
-	glutCreateWindow("Snake");
+	glutInitWindowPosition(80, 80);
+	glutCreateWindow("Snake Game - Final Project");
 	glutSpecialFunc(Special);
 	glutKeyboardFunc(keyboard);
 	glutDisplayFunc(Display);
